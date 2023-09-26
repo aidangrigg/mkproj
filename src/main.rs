@@ -1,9 +1,9 @@
 mod template;
 
-use template::build_template;
+use template::Template;
 
 use std::path::Path;
 
 fn main() {
-    build_template(&Path::new("templates"), &Path::new("test"));
+    let _t = Template::new(Path::new("templates"), Path::new("test"));
 }
