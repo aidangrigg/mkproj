@@ -68,13 +68,7 @@ impl Template {
         .collect();
 
         for template_file in template_files {
-            let file_name = match template_file.file_name() {
-                Some(val) => val,
-                None => {
-                    println!("skipping file {}", template_file.to_str().unwrap());
-                    continue;
-                }
-            };
+            let file_name = template_file.file_name().unwrap();
 
             match template_file.path_descriptor() {
                 PathDescriptor::File => {
@@ -100,13 +94,14 @@ impl Template {
     }
 
     fn parse_line(&mut self, line: &str) -> String {
-        let token_position: Vec<(usize, usize)> = line
+        let token_positions: Vec<(usize, usize)> = line
             .match_indices("$*{")
-            .filter_map(|m| {
-                let end = line[m.0..].find("}*");
+            .filter_map(|start| {
+                let start_pos = start.0;
+                let end_pos = line[start.0..].find("}*");
 
-                match end {
-                    Some(e) => Some((m.0, e + 2)),
+                match end_pos {
+                    Some(end_pos) => Some((start_pos, end_pos + 2)),
                     None => None,
                 }
             })
@@ -114,16 +109,18 @@ impl Template {
 
         let mut parsed_line = String::from(line);
 
-        for token_pos in token_position {
-            let token = self.find_token(&parsed_line[token_pos.0..token_pos.1]);
+        for token_pos in token_positions {
+            let token_name = &parsed_line[token_pos.0..token_pos.1];
+            let token = self.find_token(token_name);
             parsed_line.replace_range(token_pos.0..token_pos.1, &token.value);
         }
 
-        parsed_line
+        return parsed_line;
     }
 
     fn find_token(&mut self, key: &str) -> &Token {
         if self.tokens.iter().any(|token| token.key == key) {
+            // looping through the list of tokens twice here kinda sucks
             return self.tokens.iter().find(|token| token.key == key).unwrap();
         } else {
             return self.create_token(key);
