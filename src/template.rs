@@ -121,11 +121,9 @@ impl Template {
     }
 
     fn find_token(&mut self, key: &str) -> &Token {
-        if self.tokens.iter().any(|token| token.key == key) {
-            // looping through the list of tokens twice here kinda sucks
-            return self.tokens.iter().find(|token| token.key == key).unwrap();
-        } else {
-            return self.create_token(key);
+        match self.tokens.iter().position(|token| token.key == key) {
+            Some(idx) => &self.tokens[idx],
+            None => self.create_token(key),
         }
     }
 
