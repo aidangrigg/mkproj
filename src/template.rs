@@ -2,6 +2,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::str;
 
+use crate::commandline;
+
 enum PathDescriptor {
     File,
     Dir,
@@ -34,7 +36,7 @@ impl Token {
     fn new(key: &str) -> Self {
         Self {
             key: String::from(key),
-            value: String::from("unimplemented"),
+            value: commandline::read_input(Some(&format!("Please enter your {}: ", key))),
         }
     }
 }
