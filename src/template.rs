@@ -47,15 +47,13 @@ pub struct Template {
 
 impl Template {
     pub fn new(template_path: &Path, project_path: &Path) -> Self {
-        let mut template = Self {
-            tokens: Vec::new()
-        };
+        let mut template = Self { tokens: Vec::new() };
 
         template.build(template_path, project_path);
 
         template
     }
-    
+
     fn build(&mut self, template_path: &Path, destination: &Path) {
         fs::create_dir(destination).ok();
 
@@ -92,7 +90,10 @@ impl Template {
     }
 
     fn parse_file(&mut self, file_contents: String) -> String {
-        file_contents.lines().map(|line| self.parse_line(line) + "\n").collect()
+        file_contents
+            .lines()
+            .map(|line| self.parse_line(line) + "\n")
+            .collect()
     }
 
     fn parse_line(&mut self, line: &str) -> String {
