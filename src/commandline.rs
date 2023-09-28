@@ -55,6 +55,45 @@ pub fn read_input(prompt: Option<&str>) -> String {
     String::from(project_name.trim())
 }
 
+pub fn list_select(prompt: Option<&str>, list: &Vec<String>) -> usize {
+    match prompt {
+        Some(prompt) => {
+            println!("{}", prompt);
+            io::stdout().flush().ok();
+        }
+        None => (),
+    };
+
+    for (idx, row) in list.iter().enumerate() {
+        println!("{}: {}", idx + 1, &row);
+    }
+
+    let mut selected_row: usize = parse_int(
+        "Please enter a row: ",
+        "Row must be an integer value, please try again",
+    );
+
+    return loop {
+        if selected_row >= 1 && selected_row <= list.len() {
+            break selected_row - 1;
+        }
+
+        selected_row = parse_int(
+            "Selected row is not in the list, please try again: ",
+            "Row must be an integer value, please try again",
+        );
+    };
+}
+
+fn parse_int(prompt: &str, error_message: &str) -> usize {
+    loop {
+        match read_input(Some(prompt)).parse() {
+            Ok(row) => break row,
+            Err(_) => println!("{}", error_message),
+        }
+    }
+}
+
 pub fn non_fatal_error(message: String, retry_attempts: u32, retry_fn: &dyn Fn()) {
     unimplemented!();
 }

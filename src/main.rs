@@ -20,7 +20,7 @@ fn main() {
 
     if template_dir.is_empty() {
         template_dir = commandline::read_input(Some(
-            "Please enter the directory of the template you would like to use: ",
+            "Please select the directory you would like to source your templates from: ",
         ));
     }
 
@@ -29,5 +29,22 @@ fn main() {
             commandline::read_input(Some("Please enter the directory of your new project: "));
     }
 
-    let _t = Template::new(Path::new(&template_dir), Path::new(&project_dir));
+    let template_dir: Vec<_> = std::fs::read_dir(&template_dir)
+        .expect("Could not read template directory")
+        .filter_map(|dir| {
+            let path = dir.unwrap().path();
+            if path.is_dir() {
+                Some(String::from(path.to_str().unwrap()))
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    let template = &template_dir[commandline::list_select(
+        Some("Please select the template you would like to use: "),
+        &template_dir,
+    )];
+
+    let _t = Template::new(Path::new(template), Path::new(&project_dir));
 }
