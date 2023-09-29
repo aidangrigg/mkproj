@@ -1,7 +1,7 @@
-use std::io::{self, Write};
 use std::collections::HashSet;
+use std::io::{self, Write};
 
-use anyhow::{Context, Result, anyhow};
+use anyhow::{anyhow, Context, Result};
 
 #[derive(Eq, Hash, PartialEq, Debug)]
 pub enum Args {
@@ -44,7 +44,9 @@ pub fn parse_args(args: Vec<String>) -> Result<HashSet<Args>> {
                 return Err(anyhow!("-t prefix used incorrectly. Correct syntax is \"-t<TEMPLATE-DIR> (without a space)\""));
             }
         } else if arg.starts_with("-") {
-            return Err(anyhow!(String::from(arg) + " is not supported at this time"));
+            return Err(anyhow!(
+                String::from(arg) + " is not supported at this time"
+            ));
         } else {
             parsed_args.insert(Args::ProjectDir(String::from(arg)));
         }

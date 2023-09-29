@@ -6,7 +6,7 @@ use template::Template;
 use commandline::Args;
 use std::{collections::HashSet, env, path::Path};
 
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
 
 fn main() -> Result<()> {
     let args: HashSet<Args> = commandline::parse_args(env::args().collect())?;
