@@ -1,13 +1,6 @@
-use std::collections::HashSet;
 use std::io::{self, Write};
 
-use anyhow::{anyhow, Context, Result};
-
-#[derive(Eq, Hash, PartialEq, Debug)]
-pub enum Args {
-    TemplateDir(String),
-    ProjectDir(String),
-}
+use anyhow::{Context, Result};
 
 pub fn read_input(prompt: Option<&str>) -> Result<String> {
     match prompt {
@@ -26,33 +19,6 @@ pub fn read_input(prompt: Option<&str>) -> Result<String> {
         .context("Could not read from stdin")?;
 
     Ok(String::from(project_name.trim()))
-}
-
-pub fn parse_args(args: Vec<String>) -> Result<HashSet<Args>> {
-    let mut parsed_args: HashSet<Args> = HashSet::new();
-
-    let mut args = args.iter();
-    args.next();
-
-    for arg in args {
-        if arg.starts_with("-t") {
-            let template_dir = arg.strip_prefix("-t").unwrap();
-
-            if template_dir.len() > 0 {
-                parsed_args.insert(Args::TemplateDir(String::from(template_dir)));
-            } else {
-                return Err(anyhow!("-t prefix used incorrectly. Correct syntax is \"-t<TEMPLATE-DIR> (without a space)\""));
-            }
-        } else if arg.starts_with("-") {
-            return Err(anyhow!(
-                String::from(arg) + " is not supported at this time"
-            ));
-        } else {
-            parsed_args.insert(Args::ProjectDir(String::from(arg)));
-        }
-    }
-
-    Ok(parsed_args)
 }
 
 pub fn list_select(prompt: Option<&str>, list: &Vec<String>) -> Result<usize> {

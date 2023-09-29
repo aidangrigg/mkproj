@@ -3,33 +3,36 @@ mod template;
 
 use template::Template;
 
-use commandline::Args;
-use std::{collections::HashSet, env, path::Path};
+use std::path::Path;
 
 use anyhow::{Context, Result};
 
+use clap::{Arg, Command};
+
 fn main() -> Result<()> {
-    let args: HashSet<Args> = commandline::parse_args(env::args().collect())?;
-    let mut template_dir = String::new();
-    let mut project_dir = String::new();
+    let args = Command::new("project-builder")
+        .version("0.1.0")
+        .author("Aidan Grigg <aidangrigg02@gmail.com")
+        .about("A simple tool to help create new projects from predefined templates.")
+        .arg(
+            Arg::new("template-dir")
+                .help("Directory to source templates from")
+                .short('t'),
+        )
+        .arg(
+            Arg::new("project-dir")
+                .value_name("PROJECT_DIR")
+                .help("Directory of the new project")
+                .required(true),
+        )
+        .get_matches();
 
-    for arg in args {
-        match arg {
-            Args::TemplateDir(dir) => template_dir = dir,
-            Args::ProjectDir(dir) => project_dir = dir,
-        }
-    }
-
-    if template_dir.is_empty() {
-        template_dir = commandline::read_input(Some(
+    let template_dir = match args.get_one::<String>("template-dir") {
+        Some(dir) => dir.to_string(),
+        None => commandline::read_input(Some(
             "Please select the directory you would like to source your templates from: ",
-        ))?;
-    }
-
-    if project_dir.is_empty() {
-        project_dir =
-            commandline::read_input(Some("Please enter the directory of your new project: "))?;
-    }
+        ))?,
+    };
 
     let template_dir: Vec<_> = std::fs::read_dir(&template_dir)
         .with_context(|| format!("Failed to read templates from {}", &template_dir))?
@@ -42,6 +45,8 @@ fn main() -> Result<()> {
             }
         })
         .collect();
+
+    let project_dir = args.get_one::<String>("project-dir").unwrap().to_string();
 
     let template = &template_dir[commandline::list_select(
         Some("Please select the template you would like to use: "),
