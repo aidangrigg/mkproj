@@ -30,7 +30,7 @@ fn main() -> Result<()> {
     let template_dir = match args.get_one::<String>("template-dir") {
         Some(dir) => dir.to_string(),
         None => commandline::read_input(Some(
-            "Please select the directory you would like to source your templates from: ",
+            "Please select the directory you would like to source your templates from (must be an absolute path): ",
         ))?,
     };
 
