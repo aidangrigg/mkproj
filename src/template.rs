@@ -4,6 +4,8 @@ use std::str;
 
 use crate::commandline;
 
+use anyhow::{Context, Result};
+
 enum PathDescriptor {
     File,
     Dir,
@@ -33,11 +35,11 @@ struct Token {
 }
 
 impl Token {
-    fn new(key: &str) -> Self {
-        Self {
+    fn new(key: &str) -> Result<Self> {
+        Ok(Self {
             key: String::from(key),
-            value: commandline::read_input(Some(&format!("Please enter your {}: ", key))),
-        }
+            value: commandline::read_input(Some(&format!("Please enter your {}: ", key)))?,
+        })
     }
 }
 
@@ -46,57 +48,63 @@ pub struct Template {
 }
 
 impl Template {
-    pub fn new(template_path: &Path, project_path: &Path) -> Self {
+    pub fn new(template_path: &Path, project_path: &Path) -> Result<Self> {
         let mut template = Self { tokens: Vec::new() };
 
-        template.build(template_path, project_path);
+        template.build(template_path, project_path)?;
 
-        template
+        Ok(template)
     }
 
-    fn build(&mut self, template_path: &Path, destination: &Path) {
-        fs::create_dir(destination).ok();
+    fn build(&mut self, template_path: &Path, destination: &Path) -> Result<()> {
+        fs::create_dir_all(destination)?;
 
-        let template_files: Vec<PathBuf> = match fs::read_dir(template_path) {
-            Ok(val) => val,
-            Err(err) => panic!("Error: {}", err.kind()),
-        }
-        .map(|f| match f {
-            Ok(val) => val.path(),
-            Err(err) => panic!("Error: {}", err.kind()),
-        })
-        .collect();
+        let template_files: Vec<PathBuf> = fs::read_dir(template_path)
+            .with_context(|| {
+                format!(
+                    "Files from directory {} could not be read",
+                    template_path.to_str().unwrap()
+                )
+            })?
+            .map(|file| match file {
+                Ok(val) => Ok(val.path()),
+                Err(_) => return Err(anyhow::anyhow!("Error parsing file")),
+            })
+            .collect::<Result<Vec<PathBuf>>>()?;
 
         for template_file in template_files {
             let file_name = template_file.file_name().unwrap();
 
             match template_file.path_descriptor() {
                 PathDescriptor::File => {
-                    let file_contents = match fs::read_to_string(&template_file) {
-                        Ok(val) => self.parse_file(val),
-                        Err(_) => panic!("Could not read contents of template file"),
-                    };
+                    let file_contents = fs::read_to_string(&template_file)?;
+                    let file_contents = self.parse_file(file_contents)?;
 
-                    match fs::write(destination.join(file_name), file_contents) {
-                        Ok(_) => (),
-                        Err(e) => panic!("Could not write file {}", e.kind()),
-                    };
+                    fs::write(destination.join(file_name), file_contents).with_context(|| {
+                        format!(
+                            "Could not write to file {}",
+                            destination.join(file_name).to_str().unwrap()
+                        )
+                    })?;
                 }
                 PathDescriptor::Dir => {
-                    self.build(&template_path.join(file_name), &destination.join(file_name))
+                    return self
+                        .build(&template_path.join(file_name), &destination.join(file_name));
                 }
             }
         }
+
+        Ok(())
     }
 
-    fn parse_file(&mut self, file_contents: String) -> String {
+    fn parse_file(&mut self, file_contents: String) -> Result<String> {
         file_contents
             .lines()
-            .map(|line| self.parse_line(line) + "\n")
+            .map(|line| Ok(self.parse_line(line)? + "\n"))
             .collect()
     }
 
-    fn parse_line(&mut self, line: &str) -> String {
+    fn parse_line(&mut self, line: &str) -> Result<String> {
         let token_positions: Vec<(usize, usize)> = line
             .match_indices("$*{")
             .filter_map(|start| {
@@ -114,23 +122,23 @@ impl Template {
 
         for token_pos in token_positions {
             let token_name = &parsed_line[token_pos.0..token_pos.1];
-            let token = self.find_token(token_name);
+            let token = self.find_token(token_name)?;
             parsed_line.replace_range(token_pos.0..token_pos.1, &token.value);
         }
 
-        return parsed_line;
+        return Ok(parsed_line);
     }
 
-    fn find_token(&mut self, key: &str) -> &Token {
+    fn find_token(&mut self, key: &str) -> Result<&Token> {
         match self.tokens.iter().position(|token| token.key == key) {
-            Some(idx) => &self.tokens[idx],
+            Some(idx) => Ok(&self.tokens[idx]),
             None => self.create_token(key),
         }
     }
 
-    fn create_token(&mut self, key: &str) -> &Token {
-        let t = Token::new(key);
+    fn create_token(&mut self, key: &str) -> Result<&Token> {
+        let t = Token::new(key)?;
         self.tokens.push(t);
-        self.tokens.last().unwrap() // i feel like there should be a better way than doing this
+        Ok(self.tokens.last().unwrap()) // i feel like there should be a better way than doing this
     }
 }
