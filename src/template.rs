@@ -68,7 +68,7 @@ impl Template {
             })?
             .map(|file| match file {
                 Ok(val) => Ok(val.path()),
-                Err(_) => return Err(anyhow::anyhow!("Error parsing file")),
+                Err(_) => Err(anyhow::anyhow!("Error parsing file")),
             })
             .collect::<Result<Vec<PathBuf>>>()?;
 
@@ -111,10 +111,7 @@ impl Template {
                 let start_pos = start.0;
                 let end_pos = line[start.0..].find("}*");
 
-                match end_pos {
-                    Some(end_pos) => Some((start_pos, end_pos + 2)),
-                    None => None,
-                }
+                end_pos.map(|end_pos| (start_pos, end_pos + 2))
             })
             .collect();
 
@@ -126,7 +123,7 @@ impl Template {
             parsed_line.replace_range(token_pos.0..token_pos.1, &token.value);
         }
 
-        return Ok(parsed_line);
+        Ok(parsed_line)
     }
 
     fn find_token(&mut self, key: &str) -> Result<&Token> {

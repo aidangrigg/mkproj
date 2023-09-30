@@ -3,13 +3,10 @@ use std::io::{self, Write};
 use anyhow::{Context, Result};
 
 pub fn read_input(prompt: Option<&str>) -> Result<String> {
-    match prompt {
-        Some(prompt) => {
-            print!("{}", prompt);
-            io::stdout().flush().ok();
-        }
-        None => (),
-    };
+    if let Some(prompt) = prompt {
+        println!("{}", prompt);
+        io::stdout().flush().ok();
+    }
 
     let stdio = io::stdin();
     let mut project_name = String::new();
@@ -22,13 +19,10 @@ pub fn read_input(prompt: Option<&str>) -> Result<String> {
 }
 
 pub fn list_select(prompt: Option<&str>, list: &Vec<String>) -> Result<usize> {
-    match prompt {
-        Some(prompt) => {
-            println!("{}", prompt);
-            io::stdout().flush().ok();
-        }
-        None => (),
-    };
+    if let Some(prompt) = prompt {
+        println!("{}", prompt);
+        io::stdout().flush().ok();
+    }
 
     for (idx, row) in list.iter().enumerate() {
         println!("{}: {}", idx + 1, &row);
@@ -39,7 +33,7 @@ pub fn list_select(prompt: Option<&str>, list: &Vec<String>) -> Result<usize> {
         "Row must be an integer value, please try again",
     )?;
 
-    return loop {
+    loop {
         if selected_row >= 1 && selected_row <= list.len() {
             break Ok(selected_row - 1);
         }
@@ -48,7 +42,7 @@ pub fn list_select(prompt: Option<&str>, list: &Vec<String>) -> Result<usize> {
             "Selected row is not in the list, please try again: ",
             "Row must be an integer value, please try again",
         )?;
-    };
+    }
 }
 
 fn parse_int(prompt: &str, error_message: &str) -> Result<usize> {
