@@ -1,12 +1,13 @@
 mod commandline;
+mod config;
 mod template;
 
+use config::Config;
 use template::Template;
 
 use std::path::Path;
 
 use anyhow::{Context, Result};
-
 use clap::{Arg, Command};
 
 fn main() -> Result<()> {
@@ -27,11 +28,19 @@ fn main() -> Result<()> {
         )
         .get_matches();
 
+    let config = Config::load()?;
+
     let template_dir = match args.get_one::<String>("template-dir") {
         Some(dir) => dir.to_string(),
-        None => commandline::read_input(Some(
-            "Please select the directory you would like to source your templates from (must be an absolute path): ",
-        ))?,
+        None => {
+            if config.template_dir.is_some() {
+                config.template_dir.unwrap()
+            } else {
+                commandline::read_input(Some(
+                    "Please select the directory you would like to source your templates from (must be an absolute path): ",
+                ))?
+            }
+        }
     };
 
     let template_dir: Vec<_> = std::fs::read_dir(&template_dir)
