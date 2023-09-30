@@ -127,16 +127,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f232d6ef707e1956a43342693d2a31e72989554d58299d7a88738cc95b0d35c"
 
 [[package]]
-name = "proc-macro2"
-version = "1.0.67"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d433d9f1a3e8c1263d9456598b16fec66f4acc9a74dacffd35c7bb09b3a1328"
-dependencies = [
- "unicode-ident",
-]
-
-[[package]]
-name = "project-builder"
+name = "mkproj"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -144,6 +135,15 @@ dependencies = [
  "home",
  "serde",
  "toml",
+]
+
+[[package]]
+name = "proc-macro2"
+version = "1.0.67"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d433d9f1a3e8c1263d9456598b16fec66f4acc9a74dacffd35c7bb09b3a1328"
+dependencies = [
+ "unicode-ident",
 ]
 
 [[package]]

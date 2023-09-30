@@ -17,7 +17,7 @@
         };
 
         myRustBuild = rustPlatform.buildRustPackage {
-          pname = "project-builder"; # make this what ever your cargo.toml package.name is
+          pname = "mkproj"; # make this what ever your cargo.toml package.name is
           version = "0.1.0";
           src = ./.; # the folder with the cargo.toml
           nativeBuildInputs = [];

@@ -11,7 +11,7 @@ use anyhow::{Context, Result};
 use clap::{Arg, Command};
 
 fn main() -> Result<()> {
-    let args = Command::new("project-builder")
+    let args = Command::new("mkproj")
         .version("0.1.0")
         .author("Aidan Grigg <aidangrigg02@gmail.com")
         .about("A simple tool to help create new projects from predefined templates.")
