@@ -111,7 +111,7 @@ impl Template {
                 let start_pos = start.0;
                 let end_pos = line[start.0..].find("}*");
 
-                end_pos.map(|end_pos| (start_pos, end_pos + 2))
+                end_pos.map(|end_pos| (start_pos, end_pos + start_pos + 2))
             })
             .collect();
 
