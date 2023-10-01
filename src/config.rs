@@ -1,10 +1,7 @@
-use std::fs;
+use std::{fs, path::Path};
 
 use anyhow::{Context, Result};
-use home::home_dir;
 use serde::{Deserialize, Serialize};
-
-const CONFIG_FILE_PATH: &str = ".config/mkproj/config.toml";
 
 #[derive(Serialize, Deserialize)]
 pub struct Config {
@@ -16,10 +13,7 @@ impl Config {
         Self { template_dir: None }
     }
 
-    pub fn load() -> Result<Config> {
-        let mut config_path = home_dir().context("Impossible to get your home dir!")?;
-        config_path.push(CONFIG_FILE_PATH);
-
+    pub fn load(config_path: &Path) -> Result<Config> {
         if config_path.exists() {
             let content = fs::read_to_string(config_path).context("Could not read config file!")?;
             let config = toml::from_str(&content).context("Could not parse config file!")?;
@@ -28,15 +22,12 @@ impl Config {
         }
 
         let config = Config::default();
-        config.save()?;
+        config.save(config_path)?;
 
         Ok(config)
     }
 
-    pub fn save(&self) -> Result<()> {
-        let mut config_path = home_dir().context("Impossible to get your home dir!")?;
-        config_path.push(CONFIG_FILE_PATH);
-
+    pub fn save(&self, config_path: &Path) -> Result<()> {
         if !config_path.parent().unwrap().exists() {
             fs::create_dir_all(config_path.parent().unwrap())
                 .context("Could not create config file")?;
