@@ -4,7 +4,7 @@ use assert_cmd::Command;
 
 #[test]
 fn can_substitute_symbol() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = assert_fs::TempDir::new()?.into_persistent();
+    let temp_dir = assert_fs::TempDir::new()?;
 
     let template_dir = temp_dir.child("templates/");
     let template = template_dir.child("something/");
