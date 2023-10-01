@@ -9,7 +9,6 @@ fn can_substitute_symbol() -> Result<(), Box<dyn std::error::Error>> {
     let template_dir = temp_dir.child("templates/");
     let template = template_dir.child("something/");
 
-    template_dir.create_dir_all()?;
     template.create_dir_all()?;
 
     template
