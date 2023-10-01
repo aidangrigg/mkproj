@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 
 pub fn read_input(prompt: Option<&str>) -> Result<String> {
     if let Some(prompt) = prompt {
-        println!("{}", prompt);
+        print!("{}", prompt);
         io::stdout().flush().ok();
     }
 
