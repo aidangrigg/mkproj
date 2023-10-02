@@ -12,6 +12,13 @@ use clap::{Arg, Command};
 
 pub fn run(config_path: &Path) -> Result<()> {
     let args = project_arguments().get_matches();
+
+    let config_path = if let Some(cfg) = args.get_one::<String>("config-path") {
+        Path::new(cfg)
+    } else {
+        config_path
+    };
+
     let mut config = Config::load(config_path)?;
 
     let template_dir = if let Some(dir) = args.get_one::<String>("template-dir") {
@@ -83,5 +90,10 @@ pub fn project_arguments() -> clap::Command {
                 .value_name("PROJECT_DIR")
                 .help("Directory of the new project")
                 .required(true),
+        )
+        .arg(
+            Arg::new("config-path")
+                .help("Path to your configuration file")
+                .short('c')
         )
 }
