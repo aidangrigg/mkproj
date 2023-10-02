@@ -3,10 +3,7 @@ use std::io::{self, Write};
 use anyhow::{Context, Result};
 
 pub fn read_input(prompt: Option<&str>) -> Result<String> {
-    if let Some(prompt) = prompt {
-        print!("{}", prompt);
-        io::stdout().flush().ok();
-    }
+    prompt_same_line(prompt);
 
     let stdio = io::stdin();
     let mut project_name = String::new();
@@ -19,10 +16,7 @@ pub fn read_input(prompt: Option<&str>) -> Result<String> {
 }
 
 pub fn list_select(prompt: Option<&str>, list: &Vec<String>) -> Result<usize> {
-    if let Some(prompt) = prompt {
-        println!("{}", prompt);
-        io::stdout().flush().ok();
-    }
+    prompt_new_line(prompt);
 
     for (idx, row) in list.iter().enumerate() {
         println!("{}: {}", idx + 1, &row);
@@ -42,6 +36,30 @@ pub fn list_select(prompt: Option<&str>, list: &Vec<String>) -> Result<usize> {
             "Selected row is not in the list, please try again: ",
             "Row must be an integer value, please try again",
         )?;
+    }
+}
+
+pub fn yes_or_no(prompt: Option<&str>) -> Result<bool> {
+    loop {
+        match read_input(prompt)?.to_lowercase().as_str() {
+            "y" | "yes" => return Ok(true), 
+            "n" | "no" => return Ok(false),
+            _ => println!("Answer must be yes or no, please try again")
+        };
+    }
+}
+
+fn prompt_same_line(prompt: Option<&str>) {
+    if let Some(prompt) = prompt {
+        print!("{}", prompt);
+        io::stdout().flush().ok();
+    }
+}
+
+fn prompt_new_line(prompt: Option<&str>) {
+    if let Some(prompt) = prompt {
+        println!("{}", prompt);
+        io::stdout().flush().ok();
     }
 }
 

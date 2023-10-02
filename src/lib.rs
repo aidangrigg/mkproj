@@ -12,16 +12,36 @@ use clap::{Arg, Command};
 
 pub fn run(config_path: &Path) -> Result<()> {
     let args = project_arguments().get_matches();
-    let config = Config::load(config_path)?;
+    let mut config = Config::load(config_path)?;
 
     let template_dir = if let Some(dir) = args.get_one::<String>("template-dir") {
         dir.to_string()
     } else if let Some(dir) = config.template_dir {
         dir
     } else {
-        commandline::read_input(Some(
-            "Please select the directory you would like to source your templates from (must be an absolute path): ",
-        ))?
+        // if the user doesn't pass in a template directory, or have one already
+        // set in their config, prompt them for one
+        let input_directory = loop {
+            let user_input = commandline::read_input(Some(
+                "Please select the directory you would like to source your templates from (must be an absolute path): ",
+            ))?;
+
+            if Path::new(&user_input).exists() {
+                break user_input;
+            } else {
+                println!("Directory does not exist. Must select an existing directory. Try again.");
+            }
+        };
+
+        // let the user save their selected directory to the config file
+        if commandline::yes_or_no(Some(
+            "Would you like to save this template directory (so you don't have to input it again later)? (y or n): ",
+        ))? {
+            config.template_dir = Some(input_directory.clone());
+            config.save(config_path)?
+        }
+
+        input_directory
     };
 
     let templates: Vec<_> = std::fs::read_dir(&template_dir)
