@@ -1,5 +1,5 @@
 use assert_cmd::Command;
-use assert_fs::prelude::*;
+use assert_fs::{prelude::*, TempDir, fixture::ChildPath};
 use predicates::prelude::*; // Used for writing assertions
 
 #[test]
@@ -17,9 +17,13 @@ fn can_substitute_symbol() -> Result<(), Box<dyn std::error::Error>> {
 
     let project_dir = temp_dir.child("project/");
 
+    let config_file = create_config(&temp_dir)?;
+
     let mut cmd = Command::cargo_bin("mkproj")?;
 
-    cmd.arg("-t")
+    cmd.arg("-c")
+        .arg(config_file.path())
+        .arg("-t")
         .arg(template_dir.path())
         .arg(project_dir.path())
         .write_stdin("1\nHello, World!")
@@ -49,12 +53,7 @@ fn template_dir_no_arg() -> Result<(), Box<dyn std::error::Error>> {
 
     let project_dir = temp_dir.child("project/");
 
-    let config_path = temp_dir.child(".config/").child("mkproj");
-
-    config_path.create_dir_all()?;
-
-    let config_file = config_path.child("config.toml");
-
+    let config_file = create_config(&temp_dir)?;
     config_file.touch()?;
 
     let mut cmd = Command::cargo_bin("mkproj")?;
@@ -88,11 +87,7 @@ fn template_dir_config() -> Result<(), Box<dyn std::error::Error>> {
 
     let project_dir = temp_dir.child("project/");
 
-    let config_path = temp_dir.child(".config/").child("mkproj");
-
-    config_path.create_dir_all()?;
-
-    let config_file = config_path.child("config.toml");
+    let config_file = create_config(&temp_dir)?;
 
     config_file
         .write_str(&format!("template_dir = \"{}\"", template_dir.path().to_str().unwrap()))?;
@@ -111,6 +106,7 @@ fn template_dir_config() -> Result<(), Box<dyn std::error::Error>> {
         .child("a.txt")
         .assert(predicate::str::contains("This is a test"));
 
+    println!("here3");
     temp_dir.close()?;
     Ok(())
 }
@@ -130,9 +126,13 @@ fn template_dir_arg() -> Result<(), Box<dyn std::error::Error>> {
 
     let project_dir = temp_dir.child("project/");
 
+    let config_file = create_config(&temp_dir)?;
+
     let mut cmd = Command::cargo_bin("mkproj")?;
 
-    cmd.arg("-t")
+    cmd.arg("-c")
+        .arg(config_file.path())
+        .arg("-t")
         .arg(template_dir.path())
         .arg(project_dir.path())
         .write_stdin("1")
@@ -147,3 +147,12 @@ fn template_dir_arg() -> Result<(), Box<dyn std::error::Error>> {
     temp_dir.close()?;
     Ok(())
 }
+
+fn create_config(dir: &TempDir) -> Result<ChildPath, Box<dyn std::error::Error>> {
+    let config_path = dir.child(".config/").child("mkproj");
+
+    config_path.create_dir_all()?;
+
+    Ok(config_path.child("config.toml"))
+}
+
