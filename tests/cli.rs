@@ -94,12 +94,8 @@ fn template_dir_config() -> Result<(), Box<dyn std::error::Error>> {
 
     let config_file = config_path.child("config.toml");
 
-    println!("here");
-
     config_file
         .write_str(&format!("template_dir = \"{}\"", template_dir.path().to_str().unwrap()))?;
-
-    println!("here2");
 
     let mut cmd = Command::cargo_bin("mkproj")?;
 
@@ -115,7 +111,6 @@ fn template_dir_config() -> Result<(), Box<dyn std::error::Error>> {
         .child("a.txt")
         .assert(predicate::str::contains("This is a test"));
 
-    println!("here3");
     temp_dir.close()?;
     Ok(())
 }
