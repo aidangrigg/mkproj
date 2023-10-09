@@ -1,5 +1,5 @@
 use assert_cmd::Command;
-use assert_fs::{prelude::*, TempDir, fixture::ChildPath};
+use assert_fs::{fixture::ChildPath, prelude::*, TempDir};
 use predicates::prelude::*; // Used for writing assertions
 
 #[test]
@@ -89,8 +89,10 @@ fn template_dir_config() -> Result<(), Box<dyn std::error::Error>> {
 
     let config_file = create_config(&temp_dir)?;
 
-    config_file
-        .write_str(&format!("template_dir = \"{}\"", template_dir.path().to_str().unwrap()))?;
+    config_file.write_str(&format!(
+        "template_dir = \"{}\"",
+        template_dir.path().to_str().unwrap()
+    ))?;
 
     let mut cmd = Command::cargo_bin("mkproj")?;
 
@@ -120,9 +122,7 @@ fn template_dir_arg() -> Result<(), Box<dyn std::error::Error>> {
 
     template.create_dir_all()?;
 
-    template
-        .child("a.txt")
-        .write_str("This is a test")?;
+    template.child("a.txt").write_str("This is a test")?;
 
     let project_dir = temp_dir.child("project/");
 
@@ -155,4 +155,3 @@ fn create_config(dir: &TempDir) -> Result<ChildPath, Box<dyn std::error::Error>>
 
     Ok(config_path.child("config.toml"))
 }
-
