@@ -75,8 +75,6 @@ impl Template {
         for template_file in template_files {
             let file_name = template_file.file_name().unwrap();
 
-            println!("Reading file {:?}", file_name);
-
             match template_file.path_descriptor() {
                 PathDescriptor::File => {
                     let file_contents = fs::read_to_string(&template_file)?;
