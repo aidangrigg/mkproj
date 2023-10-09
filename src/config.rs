@@ -29,8 +29,10 @@ impl Config {
 
     pub fn save(&self, config_path: &Path) -> Result<()> {
         if !config_path.parent().unwrap().exists() {
-            fs::create_dir_all(config_path.parent().unwrap())
-                .context("Could not create config file")?;
+            fs::create_dir_all(config_path.parent().unwrap()).context(format!(
+                "Could not create config file at {}",
+                config_path.to_str().unwrap()
+            ))?;
         }
 
         let toml = toml::to_string(self).context("Failed to convert toml to string")?;
