@@ -41,7 +41,7 @@ fn can_substitute_symbol() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn template_dir_no_arg() -> Result<(), Box<dyn std::error::Error>> {
+fn template_dir_from_prompt() -> Result<(), Box<dyn std::error::Error>> {
     let temp_dir = assert_fs::TempDir::new()?;
 
     let template_dir = temp_dir.child("templates/");
@@ -75,7 +75,7 @@ fn template_dir_no_arg() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn template_dir_config() -> Result<(), Box<dyn std::error::Error>> {
+fn template_dir_from_config() -> Result<(), Box<dyn std::error::Error>> {
     let temp_dir = assert_fs::TempDir::new()?;
 
     let template_dir = temp_dir.child("templates/");
@@ -114,7 +114,7 @@ fn template_dir_config() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn template_dir_arg() -> Result<(), Box<dyn std::error::Error>> {
+fn template_dir_from_arg() -> Result<(), Box<dyn std::error::Error>> {
     let temp_dir = assert_fs::TempDir::new()?;
 
     let template_dir = temp_dir.child("templates/");
