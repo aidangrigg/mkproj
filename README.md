@@ -4,6 +4,8 @@ mkproj is a simple command line utility for instantiating projects.
 
 ## Installation
 
+NOTE: This program has only been tested on Linux. It may not work on Windows/MacOS.
+
 ### Using cargo
 
 1. Clone the repository using `git clone https://github.com/aidangrigg/mkproj.git`
