@@ -4,7 +4,10 @@ mkproj is a simple command line utility for instantiating projects.
 
 ## Installation
 
-todo
+### Using cargo
+
+1. Clone the repository using `git clone https://github.com/aidangrigg/mkproj.git`
+2. Cd into the cloned project and run `cargo install --path .` (NOTE: make sure `$HOME/.cargo/bin` is on you path)
 
 ## Usage
 
