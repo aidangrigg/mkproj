@@ -59,6 +59,7 @@ impl Template {
     fn build(&mut self, template_path: &Path, destination: &Path) -> Result<()> {
         fs::create_dir_all(destination)?;
 
+        // Get all of the files in the template directory.
         let template_files: Vec<PathBuf> = fs::read_dir(template_path)
             .with_context(|| {
                 format!(

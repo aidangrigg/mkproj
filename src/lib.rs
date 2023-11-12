@@ -13,6 +13,8 @@ use clap::{Arg, Command};
 pub fn run(config_path: &Path) -> Result<()> {
     let args = project_arguments().get_matches();
 
+    // If a config-path is passed in through the command line, use it.
+    // Otherwise, use the path passed into the function
     let config_path = if let Some(cfg) = args.get_one::<String>("config-path") {
         Path::new(cfg)
     } else {
@@ -21,6 +23,9 @@ pub fn run(config_path: &Path) -> Result<()> {
 
     let mut config = Config::load(config_path)?;
 
+    // If a template-dir is passed in through the command line, use it.
+    // Otherwise, check if a template-dir has been specified in the users config file.
+    // Otherwise, prompt the user to input a template directory
     let template_dir = if let Some(dir) = args.get_one::<String>("template-dir") {
         dir.to_string()
     } else if let Some(dir) = config.template_dir {
@@ -51,6 +56,7 @@ pub fn run(config_path: &Path) -> Result<()> {
         input_directory
     };
 
+    // Get all the templates in the template directory
     let templates: Vec<_> = std::fs::read_dir(&template_dir)
         .with_context(|| format!("Failed to read templates from {}", &template_dir))?
         .filter_map(|dir| {
@@ -63,13 +69,16 @@ pub fn run(config_path: &Path) -> Result<()> {
         })
         .collect();
 
+    // Get the passed in project directory
     let project_dir = args.get_one::<String>("project-dir").unwrap().to_string();
 
+    // As the user what template they would like to use.
     let selected_template = &templates[commandline::list_select(
         Some("Please select the template you would like to use: "),
         &templates,
     )?];
 
+    // Generate the template in the project directory.
     let _ = Template::new(Path::new(selected_template), Path::new(&project_dir));
 
     Ok(())
@@ -94,6 +103,6 @@ pub fn project_arguments() -> clap::Command {
         .arg(
             Arg::new("config-path")
                 .help("Path to your configuration file")
-                .short('c')
+                .short('c'),
         )
 }
