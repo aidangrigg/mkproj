@@ -1,2 +1,7 @@
 /target
 /result
+
+# env stuff
+.direnv/
+.envrc
+
